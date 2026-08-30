@@ -1,0 +1,84 @@
+# =========================
+# SISTEMA / EDITORES
+# =========================
+
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+*.iml
+
+*.swp
+*.swo
+*~
+
+# =========================
+# VARIÁVEIS / SEGREDOS
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# =========================
+# FRONTEND - NODE / VITE
+# =========================
+
+frontend/node_modules/
+frontend/dist/
+
+frontend/.vite/
+frontend/.cache/
+
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# =========================
+# BACKEND - JAVA / SPRING
+# =========================
+
+backend/target/
+backend/build/
+
+backend/.classpath
+backend/.project
+backend/.settings/
+
+*.class
+*.jar
+*.war
+
+# =========================
+# BANCO H2
+# =========================
+
+backend/data/
+
+*.mv.db
+*.trace.db
+*.lock.db
+
+# =========================
+# LOGS
+# =========================
+
+*.log
+logs/
+
+# =========================
+# TESTES / COVERAGE
+# =========================
+
+coverage/
+*.exec
+
+# =========================
+# ARQUIVOS TEMPORÁRIOS
+# =========================
+
+tmp/
+temp/
+*.tmp
