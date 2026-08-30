@@ -8,6 +8,7 @@ import { WhatWeKnow } from "./pages/WhatWeKnow";
 import { Quiz } from "./pages/Quiz";
 import { Settings } from "./pages/Settings";
 import { Dashboard } from "./pages/Dashboard";
+import { Apresentacao } from "./pages/Apresentacao";
 
 function AppShell() {
   const { carregando } = useSession();
@@ -22,6 +23,7 @@ function AppShell() {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
+	  <Route path="/apresentacao" element={<Apresentacao />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/what-we-know" element={<WhatWeKnow />} />
           <Route path="/quiz" element={<Quiz />} />
