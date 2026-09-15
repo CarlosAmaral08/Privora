@@ -1,18 +1,7 @@
 import type { PageContext } from "../types/analysis";
+import { identifyCurrentDocument } from "./privacyDocumentDiscovery";
 
 const SUPPORTED_PROTOCOLS = new Set(["http:", "https:"]);
-const POLICY_HINTS = [
-  "privacy",
-  "privacidade",
-  "policy",
-  "politica",
-  "política",
-  "terms",
-  "termos",
-  "legal",
-  "lgpd",
-  "cookies",
-];
 
 export async function getCurrentPage(): Promise<PageContext> {
   if (typeof chrome === "undefined" || !chrome.tabs?.query) {
@@ -43,8 +32,7 @@ export async function getCurrentPage(): Promise<PageContext> {
 }
 
 export function isLikelyPolicyPage(page: PageContext): boolean {
-  const searchableText = `${page.title} ${page.url}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  return POLICY_HINTS.some((hint) => searchableText.includes(hint.normalize("NFD").replace(/[\u0300-\u036f]/g, "")));
+  return identifyCurrentDocument(page) !== null;
 }
 
 function isSupportedUrl(value: string): boolean {

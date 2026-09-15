@@ -1,4 +1,28 @@
-export type AnalysisState = "idle" | "analyzing" | "success" | "error" | "unsupported";
+export type AnalysisState =
+  | "idle"
+  | "discovering"
+  | "analyzing"
+  | "success"
+  | "error"
+  | "unsupported"
+  | "manual-required";
+
+export type PrivacyDocumentType = "privacy" | "terms" | "cookies" | "legal";
+
+export interface DiscoveredDocument {
+  type: PrivacyDocumentType;
+  title: string;
+  url: string;
+  confidence: number;
+}
+
+export interface DiscoverableLink {
+  text: string;
+  ariaLabel: string;
+  title: string;
+  href: string;
+  inFooter: boolean;
+}
 
 export interface PageContext {
   tabId?: number;
@@ -12,6 +36,16 @@ export interface ExtractedPageContent {
   sourceUrl: string;
   title: string;
   relevantText: string;
+  quality: ExtractionQuality;
+}
+
+export interface ExtractionQuality {
+  strategy: "document" | "manual-page";
+  suitable: boolean;
+  textDensity: number;
+  anchorTextRatio: number;
+  substantialBlocks: number;
+  listingSignals: number;
 }
 
 export interface AnalysisSection {

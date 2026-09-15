@@ -3,7 +3,12 @@
   "name": "Privora",
   "description": "Torne políticas de privacidade mais claras e compreensíveis.",
   "version": "0.1.0",
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["activeTab", "scripting", "storage"],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
   "action": {
     "default_title": "Abrir Privora",
     "default_popup": "index.html",
