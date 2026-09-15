@@ -82,3 +82,6 @@ coverage/
 tmp/
 temp/
 *.tmp
+# Extension build/deps
+extension/node_modules/
+extension/dist/
