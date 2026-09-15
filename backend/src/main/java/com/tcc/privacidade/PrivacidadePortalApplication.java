@@ -2,6 +2,7 @@ package com.tcc.privacidade;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 /**
  * Classe principal. E ela que "liga" toda a aplicacao Spring Boot.
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * e cria automaticamente os controllers, services e repositories.
  */
 @SpringBootApplication
+@ConfigurationPropertiesScan
 public class PrivacidadePortalApplication {
 
     public static void main(String[] args) {
