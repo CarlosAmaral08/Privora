@@ -1,15 +1,18 @@
-import { runTemporaryMockAnalysis } from "../mocks/mockAnalysis";
-import { getCurrentPage } from "../services/currentTab";
-import type { AnalysisResult, AnalysisState, PageContext } from "../types/analysis";
+import { BrowserPageContentExtractor } from "../services/contentExtractor";
+import { getCurrentPage, isLikelyPolicyPage } from "../services/currentTab";
+import type { AnalysisState, ExtractedPageContent, PageContext } from "../types/analysis";
 
 type Theme = "light" | "dark";
 
 const THEME_KEY = "privora-extension-theme";
+const MIN_RELEVANT_CHARACTERS = 300;
+const PREVIEW_CHARACTERS = 720;
+const contentExtractor = new BrowserPageContentExtractor();
 
 const STATE_MESSAGES: Record<AnalysisState, string> = {
   idle: "Pronta para analisar esta página",
-  analyzing: "Analisando estrutura da política…",
-  success: "Resumo demonstrativo concluído",
+  analyzing: "Extraindo conteúdo visível da página…",
+  success: "Prévia local concluída",
   error: "Não foi possível concluir a análise",
   unsupported: "Página sem conteúdo adequado",
 };
@@ -48,18 +51,18 @@ export function mountPopup(root: HTMLDivElement): void {
     renderAnalyzing(resultRegion);
 
     try {
-      const result = await runTemporaryMockAnalysis(page);
-      if (!result) {
+      const content = await contentExtractor.extract(page);
+      if (content.relevantText.length < MIN_RELEVANT_CHARACTERS) {
         setState("unsupported");
         renderUnsupported(
           resultRegion,
-          "Não encontramos indícios de uma política, termos ou conteúdo de privacidade nesta página.",
+          "A página não possui texto visível suficiente em títulos, parágrafos ou listas para gerar uma prévia útil.",
         );
         return;
       }
 
       setState("success");
-      renderSuccess(resultRegion, result);
+      renderLocalPreview(resultRegion, content, isLikelyPolicyPage(page));
     } catch {
       setState("error");
       renderError(resultRegion);
@@ -148,7 +151,7 @@ function renderIdle(region: HTMLElement): void {
   region.innerHTML = `
     <div class="empty-result">
       <span class="empty-mark" aria-hidden="true"><i></i><i></i></span>
-      <div><strong>Seu resumo aparecerá aqui</strong><p>Dados, finalidades e controles organizados em uma leitura simples.</p></div>
+      <div><strong>Sua prévia aparecerá aqui</strong><p>Um recorte técnico do texto visível, processado somente neste dispositivo.</p></div>
     </div>
   `;
 }
@@ -157,38 +160,41 @@ function renderAnalyzing(region: HTMLElement): void {
   region.innerHTML = `
     <div class="processing-state">
       <span class="processing-orbit" aria-hidden="true"><i></i></span>
-      <strong>Preparando a estrutura</strong>
-      <p>Esta etapa usa uma espera simulada para validar a interface.</p>
+      <strong>Lendo a página atual</strong>
+      <p>O script é executado somente nesta aba e somente após o seu clique.</p>
       <div class="skeleton-lines" aria-hidden="true"><span></span><span></span><span></span></div>
     </div>
   `;
 }
 
-function renderSuccess(region: HTMLElement, result: AnalysisResult): void {
-  const sections = result.sections
-    .map(
-      (section, index) => `
-        <details class="result-section" ${index === 0 ? "open" : ""}>
-          <summary><span class="section-number">0${index + 1}</span><span>${escapeHtml(section.title)}</span><i aria-hidden="true">+</i></summary>
-          <div class="section-content">
-            <p>${escapeHtml(section.summary)}</p>
-            <ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-          </div>
-        </details>
-      `,
-    )
-    .join("");
-
+function renderLocalPreview(region: HTMLElement, content: ExtractedPageContent, policyHint: boolean): void {
+  const characterCount = new Intl.NumberFormat("pt-BR").format(content.relevantText.length);
+  const excerpt = content.relevantText.slice(0, PREVIEW_CHARACTERS).trim();
+  const excerptSuffix = content.relevantText.length > PREVIEW_CHARACTERS ? "…" : "";
   region.innerHTML = `
-    <div class="result-heading">
-      <span class="mock-badge"><i aria-hidden="true"></i> Resultado mock</span>
-      <h2>Política em perspectiva</h2>
-      <p>${escapeHtml(result.summary)}</p>
-      <small>Simulação visual — nenhuma IA ou análise real foi executada.</small>
+    <div class="result-heading local-result-heading">
+      <span class="local-badge"><i aria-hidden="true"></i> Processamento local</span>
+      <h2>Conteúdo pronto para análise</h2>
+      <p>${policyHint ? "A URL ou o título também apresentam sinais de conteúdo sobre privacidade." : "O texto útil foi encontrado mesmo sem palavras-chave no título ou na URL."}</p>
     </div>
-    <div class="result-sections">${sections}</div>
-    <a class="source-link" href="${escapeHtml(result.sourceUrl)}" target="_blank" rel="noreferrer">
-      <span><small>Fonte original</small><strong>${escapeHtml(formatUrl(result.sourceUrl))}</strong></span>
+    <div class="local-preview">
+      <div class="extraction-metric">
+        <small>Texto extraído</small>
+        <strong>≈ ${characterCount}</strong>
+        <span>caracteres úteis</span>
+      </div>
+      <dl class="preview-metadata">
+        <div><dt>Título</dt><dd>${escapeHtml(content.title)}</dd></div>
+        <div><dt>Origem</dt><dd title="${escapeHtml(content.sourceUrl)}">${escapeHtml(formatUrl(content.sourceUrl))}</dd></div>
+      </dl>
+      <div class="excerpt-block">
+        <div><span>Trecho extraído</span><small>limitado para visualização</small></div>
+        <p>${escapeHtml(excerpt)}${excerptSuffix}</p>
+      </div>
+      <div class="local-notice"><span aria-hidden="true">✓</span><strong>Prévia local — nenhum conteúdo foi enviado para a Privora.</strong></div>
+    </div>
+    <a class="source-link" href="${escapeHtml(content.sourceUrl)}" target="_blank" rel="noreferrer">
+      <span><small>Fonte original</small><strong>${escapeHtml(formatUrl(content.sourceUrl))}</strong></span>
       <i aria-hidden="true">↗</i>
     </a>
   `;
@@ -207,14 +213,14 @@ function renderError(region: HTMLElement): void {
   region.innerHTML = `
     <div class="message-state error-state">
       <span aria-hidden="true">!</span>
-      <div><strong>Algo não saiu como esperado</strong><p>Não foi possível preparar a simulação desta página. Feche o popup e tente novamente.</p></div>
+      <div><strong>Algo não saiu como esperado</strong><p>Não foi possível ler o conteúdo desta página. Verifique se ela permite execução de extensões e tente novamente.</p></div>
     </div>
   `;
 }
 
 function buttonLabel(state: AnalysisState): string {
   if (state === "analyzing") return '<span class="button-spinner" aria-hidden="true"></span><span>Analisando…</span>';
-  if (state === "success") return '<span>Analisar novamente</span><span aria-hidden="true">↗</span>';
+  if (state === "success") return '<span>Extrair novamente</span><span aria-hidden="true">↗</span>';
   if (state === "error") return '<span>Tentar novamente</span><span aria-hidden="true">↗</span>';
   if (state === "unsupported") return "<span>Análise indisponível</span>";
   return '<span>Analisar política</span><span aria-hidden="true">↗</span>';
