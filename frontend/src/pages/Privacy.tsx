@@ -38,24 +38,40 @@ export function Privacy() {
 
   return (
     <section className="page page-privacy">
-      <h1>Privacidade & LGPD</h1>
-      <div className="card-grid">
-        {cards.map((card) => (
-          <div className="card" key={card.titulo}>
+      <header className="page-header">
+        <span className="page-kicker">Conhecimento é controle</span>
+        <h1>Privacidade &amp; LGPD</h1>
+        <p className="lead">
+          Conceitos essenciais para entender como seus dados circulam e quais escolhas a lei coloca nas suas mãos.
+        </p>
+      </header>
+
+      <div className="card-grid knowledge-grid">
+        {cards.map((card, index) => (
+          <article className="card knowledge-card" key={card.titulo}>
+            <span className="card-index">0{index + 1}</span>
             <h3>{card.titulo}</h3>
             <p>{card.texto}</p>
-          </div>
+          </article>
         ))}
       </div>
 
-      <h2>Seus direitos como titular de dados</h2>
-      <ul className="rights-list">
-        {direitos.map((direito) => (
-          <li key={direito}>{direito}</li>
-        ))}
-      </ul>
+      <section className="content-panel rights-panel">
+        <div className="panel-heading">
+          <span className="panel-icon" aria-hidden="true">✓</span>
+          <div>
+            <span className="page-kicker">Direitos do titular</span>
+            <h2>Escolhas garantidas pela LGPD</h2>
+          </div>
+        </div>
+        <ul className="rights-list">
+          {direitos.map((direito) => (
+            <li key={direito}><span aria-hidden="true">→</span>{direito}</li>
+          ))}
+        </ul>
+      </section>
 
-      <p className="closing">Entenda seus dados. Conheça seus direitos. Assuma o controle.</p>
+      <p className="page-closing">Entenda seus dados. Conheça seus direitos. Assuma o controle.</p>
     </section>
   );
 }

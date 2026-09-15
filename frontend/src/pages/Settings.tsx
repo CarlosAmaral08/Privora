@@ -49,32 +49,55 @@ export function Settings() {
 
   return (
     <section className="page page-settings">
-      <h1>Configurações de privacidade</h1>
+      <header className="page-header">
+        <span className="page-kicker">Suas escolhas</span>
+        <h1>Configurações de privacidade</h1>
+        <p className="lead">Revise consentimentos e exerça controle sobre os dados desta sessão anônima.</p>
+      </header>
 
-      <h2>Consentimentos</h2>
-      <div className="consent-list">
-        {consents.map((c) => (
-          <label key={c.category} className="consent-item">
-            <input
-              type="checkbox"
-              checked={c.granted}
-              disabled={c.category === "NECESSARIOS"}
-              onChange={() => alternar(c.category, c.granted)}
-            />
-            <span>{LABELS[c.category]}</span>
-          </label>
-        ))}
-      </div>
+      <section className="content-panel settings-panel">
+        <div className="panel-heading panel-heading-between">
+          <div>
+            <span className="page-kicker">Controle granular</span>
+            <h2>Consentimentos</h2>
+          </div>
+          <span className="settings-state">Alterações imediatas</span>
+        </div>
+        <div className="consent-list">
+          {consents.map((c) => (
+            <label key={c.category} className="consent-item">
+              <span className="consent-copy">
+                <strong>{c.category === "NECESSARIOS" ? "Necessários" : c.category === "PREFERENCIAS" ? "Preferências" : "Métricas da campanha"}</strong>
+                <small>{LABELS[c.category].replace(/^[^(]+\(|\)$/g, "")}</small>
+              </span>
+              <span className="switch-control">
+                <input
+                  type="checkbox"
+                  checked={c.granted}
+                  disabled={c.category === "NECESSARIOS"}
+                  aria-label={`${LABELS[c.category]}: ${c.granted ? "ativado" : "desativado"}`}
+                  onChange={() => alternar(c.category, c.granted)}
+                />
+                <span className="switch-track" aria-hidden="true"><span /></span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </section>
 
-      <h2>Seus dados</h2>
-      <div className="settings-actions">
-        <button onClick={exportarDados}>Exportar meus dados (JSON)</button>
-        <button className="danger" onClick={apagarDados}>
-          Apagar todos os meus dados
-        </button>
-      </div>
+      <section className="content-panel data-actions-panel">
+        <div className="panel-heading">
+          <span className="panel-icon panel-icon-violet" aria-hidden="true">↗</span>
+          <div><span className="page-kicker">Portabilidade e exclusão</span><h2>Seus dados</h2></div>
+        </div>
+        <p>Baixe uma cópia legível ou remova permanentemente todos os registros vinculados a esta sessão.</p>
+        <div className="settings-actions">
+          <button className="action-button" onClick={exportarDados}>Exportar meus dados <span>JSON ↗</span></button>
+          <button className="action-button danger" onClick={apagarDados}>Apagar todos os meus dados <span>Irreversível</span></button>
+        </div>
+      </section>
 
-      {mensagem && <p className="settings-message">{mensagem}</p>}
+      {mensagem && <p className="settings-message" role="status"><span aria-hidden="true">✓</span>{mensagem}</p>}
     </section>
   );
 }

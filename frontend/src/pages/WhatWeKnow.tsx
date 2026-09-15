@@ -27,55 +27,74 @@ export function WhatWeKnow() {
 
   if (carregando || !dados) {
     return (
-      <section className="page">
-        <h1>O que sabemos sobre você?</h1>
-        <p>Carregando...</p>
+      <section className="page page-loading" aria-live="polite">
+        <span className="loading-mark" aria-hidden="true" />
+        <h1>Preparando sua transparência</h1>
+        <p>Organizando os dados desta sessão...</p>
       </section>
     );
   }
 
   return (
     <section className="page page-what-we-know">
-      <h1>O que sabemos sobre você?</h1>
-      <p className="lead">
-        Tudo que este site guarda sobre a sua visita, de forma transparente. Nenhuma dessas informações
-        identifica você pessoalmente.
-      </p>
+      <header className="page-header page-header-split">
+        <div>
+          <span className="page-kicker">Transparência aplicada</span>
+          <h1>O que sabemos sobre você?</h1>
+        </div>
+        <p className="lead">
+          Tudo que este site guarda sobre a sua visita, de forma transparente. Nenhuma dessas informações
+          identifica você pessoalmente.
+        </p>
+      </header>
 
-      <div className="card-grid">
-        <div className="card">
+      <div className="card-grid data-overview-grid">
+        <article className="card data-card data-card-featured">
+          <span className="data-card-label">Identidade da sessão</span>
           <h3>Identificador anônimo</h3>
           <p className="mono">{dados.userId}</p>
-        </div>
-        <div className="card">
+        </article>
+        <article className="card data-card">
+          <span className="data-card-label">Origem</span>
           <h3>Primeira visita</h3>
           <p>{new Date(dados.createdAt).toLocaleString("pt-BR")}</p>
-        </div>
-        <div className="card">
+        </article>
+        <article className="card data-card">
+          <span className="data-card-label">Recência</span>
           <h3>Última visita</h3>
           <p>{new Date(dados.lastSeenAt).toLocaleString("pt-BR")}</p>
-        </div>
-        <div className="card">
+        </article>
+        <article className="card data-card">
+          <span className="data-card-label">Atividade interna</span>
           <h3>Total de eventos registrados</h3>
-          <p>{dados.totalEvents}</p>
-        </div>
+          <p className="data-card-number">{dados.totalEvents}</p>
+        </article>
       </div>
 
       {dados.rfv && (
-        <div className="card highlight">
-          <h3>Seu perfil RFV</h3>
-          <p className="mono rfv-code">{dados.rfv.code}</p>
-          <p>
-            Recência: {dados.rfv.recency} · Frequência: {dados.rfv.frequency} · Valor: {dados.rfv.value}
-          </p>
-          <p>
-            Segmento: <strong>{SEGMENTO_LABEL[dados.rfv.segment] ?? dados.rfv.segment}</strong>
-          </p>
-        </div>
+        <section className="rfv-profile-panel">
+          <div>
+            <span className="page-kicker">Leitura RFV</span>
+            <h2>Seu perfil nesta experiência</h2>
+            <p>Um código posicional formado apenas pelas interações realizadas dentro da Privora.</p>
+          </div>
+          <div className="rfv-profile-code">
+            <span className="mono rfv-code">{dados.rfv.code}</span>
+            <small>R {dados.rfv.recency} · F {dados.rfv.frequency} · V {dados.rfv.value}</small>
+          </div>
+          <div className="segment-badge">
+            <small>Segmento</small>
+            <strong>{SEGMENTO_LABEL[dados.rfv.segment] ?? dados.rfv.segment}</strong>
+          </div>
+        </section>
       )}
 
-      <h2>Consentimentos atuais</h2>
-      <table className="data-table">
+      <section className="data-section">
+        <div className="section-title-row">
+          <div><span className="page-kicker">Escolhas</span><h2>Consentimentos atuais</h2></div>
+          <span className="section-count">{dados.consents.length} categorias</span>
+        </div>
+        <div className="table-shell"><table className="data-table">
         <thead>
           <tr>
             <th>Categoria</th>
@@ -87,18 +106,20 @@ export function WhatWeKnow() {
           {dados.consents.map((c) => (
             <tr key={c.category}>
               <td>{c.category}</td>
-              <td>{c.granted ? "Concedido" : "Recusado"}</td>
+              <td><span className={`status-pill ${c.granted ? "status-success" : "status-neutral"}`}>{c.granted ? "Concedido" : "Recusado"}</span></td>
               <td>{new Date(c.updatedAt).toLocaleString("pt-BR")}</td>
             </tr>
           ))}
         </tbody>
-      </table>
+        </table></div>
+      </section>
 
-      <h2>Resultados do quiz</h2>
+      <section className="data-section">
+      <div className="section-title-row"><div><span className="page-kicker">Aprendizado</span><h2>Resultados do quiz</h2></div></div>
       {dados.quizResults.length === 0 ? (
-        <p>Você ainda não concluiu o quiz.</p>
+        <p className="empty-state">Você ainda não concluiu o quiz.</p>
       ) : (
-        <table className="data-table">
+        <div className="table-shell"><table className="data-table">
           <thead>
             <tr>
               <th>Pontuação</th>
@@ -113,11 +134,16 @@ export function WhatWeKnow() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       )}
+      </section>
 
-      <h2>Eventos registrados</h2>
-      <table className="data-table">
+      <section className="data-section">
+      <div className="section-title-row">
+        <div><span className="page-kicker">Rastro interno</span><h2>Eventos registrados</h2></div>
+        <span className="section-count">{dados.events.length} registros</span>
+      </div>
+      <div className="table-shell"><table className="data-table">
         <thead>
           <tr>
             <th>Evento</th>
@@ -132,7 +158,8 @@ export function WhatWeKnow() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
+      </section>
     </section>
   );
 }

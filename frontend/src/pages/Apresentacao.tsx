@@ -2,7 +2,7 @@ export function Apresentacao() {
   return (
     <div className="page presentation-page">
       <section className="presentation-hero">
-        <span className="presentation-eyebrow">PROJETO INTEGRADOR</span>
+        <span className="page-kicker">Projeto integrador</span>
 
         <h1>Privora</h1>
 
@@ -10,20 +10,19 @@ export function Apresentacao() {
           Privacidade, coleta de dados e comunicação consciente em sistemas de CRM.
         </p>
 
-        <blockquote>
-          Se um sistema usa seus dados para conhecê-lo, você também deveria poder
-          conhecer o sistema.
-        </blockquote>
+        <blockquote><span aria-hidden="true">“</span>Se um sistema usa seus dados para conhecê-lo, você também deveria poder conhecer o sistema.</blockquote>
       </section>
 
-      <section className="presentation-section">
-        <h2>Storybook</h2>
-
-        <p>
+      <section className="presentation-section content-panel storybook-section">
+        <div className="presentation-section-copy">
+          <span className="page-kicker">A história</span>
+          <h2>Storybook</h2>
+          <p>
           Antes de apresentar a solução, acompanhamos Lucas em uma situação comum:
           utilizar serviços digitais sem compreender completamente o que acontece
           com seus dados.
-        </p>
+          </p>
+        </div>
 
         <div className="storybook-container">
           <iframe
@@ -46,7 +45,7 @@ export function Apresentacao() {
       </section>
 
       <section className="presentation-section">
-        <span className="presentation-eyebrow">PESQUISA EXPLORATÓRIA</span>
+        <span className="page-kicker">Pesquisa exploratória</span>
 
         <h2>Preocupação existe. Compreensão e ação ainda são limitadas.</h2>
 
@@ -56,35 +55,35 @@ export function Apresentacao() {
         </p>
 
         <div className="research-grid">
-          <article className="research-card">
+          <article className="research-card"><span className="card-index">01</span>
             <strong className="research-number">3/5</strong>
             <span>
               nunca verificam cookies antes de aceitar; os outros 2 raramente verificam.
             </span>
           </article>
 
-          <article className="research-card">
+          <article className="research-card"><span className="card-index">02</span>
             <strong className="research-number">5/5</strong>
             <span>
               nunca ou raramente leem políticas de privacidade.
             </span>
           </article>
 
-          <article className="research-card">
+          <article className="research-card"><span className="card-index">03</span>
             <strong className="research-number">4/5</strong>
             <span>
               não conhecem a LGPD ou apenas ouviram falar sobre ela.
             </span>
           </article>
 
-          <article className="research-card">
+          <article className="research-card"><span className="card-index">04</span>
             <strong className="research-number">3/5</strong>
             <span>
               não sabem como solicitar a uma empresa informações sobre seus dados.
             </span>
           </article>
 
-          <article className="research-card">
+          <article className="research-card"><span className="card-index">05</span>
             <strong className="research-number">5/5</strong>
             <span>
               demonstraram preocupação moderada com sua privacidade.
@@ -108,7 +107,7 @@ export function Apresentacao() {
       </section>
 
       <section className="presentation-section presentation-transition">
-        <span className="presentation-eyebrow">A SOLUÇÃO</span>
+        <span className="page-kicker">A solução</span>
 
         <h2>E se a transparência pudesse ser experimentada?</h2>
 

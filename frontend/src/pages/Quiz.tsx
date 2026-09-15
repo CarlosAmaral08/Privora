@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { quizApi } from "../services/api";
 import { useSession } from "../context/SessionContext";
 
@@ -84,12 +85,13 @@ export function Quiz() {
 
   if (finalizado) {
     return (
-      <section className="page">
+      <section className="page page-quiz quiz-complete">
+        <div className="completion-mark" aria-hidden="true">✓</div>
+        <span className="page-kicker">Aprendizado concluído</span>
         <h1>Quiz concluído!</h1>
-        <p>
-          Você acertou <strong>{acertos} de {PERGUNTAS.length}</strong> perguntas.
-        </p>
-        <p>Confira seu histórico completo na página "O que sabemos sobre você".</p>
+        <p className="completion-score"><strong>{acertos}</strong><span>de {PERGUNTAS.length} respostas corretas</span></p>
+        <p>O resultado já está visível junto aos demais registros transparentes da sua sessão.</p>
+        <Link to="/what-we-know" className="button button-primary">Ver em “O que sabemos” <span aria-hidden="true">→</span></Link>
       </section>
     );
   }
@@ -98,10 +100,17 @@ export function Quiz() {
 
   return (
     <section className="page page-quiz">
-      <h1>Quiz: privacidade e LGPD</h1>
-      <p className="quiz-progress">Pergunta {passo + 1} de {PERGUNTAS.length}</p>
+      <header className="page-header quiz-header">
+        <span className="page-kicker">Teste seu conhecimento</span>
+        <h1>Quiz: privacidade e LGPD</h1>
+        <div className="quiz-progress-row">
+          <p className="quiz-progress">Pergunta {passo + 1} de {PERGUNTAS.length}</p>
+          <div className="quiz-progress-track" aria-hidden="true"><span style={{ width: `${((passo + 1) / PERGUNTAS.length) * 100}%` }} /></div>
+        </div>
+      </header>
+      <div className="quiz-panel">
       <h2>{atual.pergunta}</h2>
-      <div className="quiz-options">
+      <div className="quiz-options" role="group" aria-label={`Opções da pergunta ${passo + 1}`}>
         {atual.opcoes.map((opcao, i) => {
           let classe = "quiz-option";
           if (selecionada !== null) {
@@ -110,19 +119,22 @@ export function Quiz() {
           }
           return (
             <button key={i} className={classe} onClick={() => responder(i)} disabled={selecionada !== null}>
-              {opcao}
+              <span className="option-letter" aria-hidden="true">{String.fromCharCode(65 + i)}</span>
+              <span>{opcao}</span>
             </button>
           );
         })}
       </div>
       {selecionada !== null && (
-        <div className="quiz-feedback">
+        <div className="quiz-feedback" role="status">
+          <span className="feedback-label">Por que?</span>
           <p>{atual.explicacao}</p>
           <button className="cta-button" onClick={proxima}>
             {passo + 1 < PERGUNTAS.length ? "Próxima pergunta" : "Ver resultado"}
           </button>
         </div>
       )}
+      </div>
     </section>
   );
 }

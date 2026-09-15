@@ -26,12 +26,15 @@ export function ConsentBanner() {
   if (!visivel) return null;
 
   return (
-    <div className="consent-banner">
-      <p>
-        Este site usa apenas uma sessão anônima e cookies estritamente necessários. Com sua permissão,
-        também registramos algumas interações para fins educativos (veja em <em>O que sabemos sobre você</em>).
-        Nenhum dado pessoal identificável é coletado.
-      </p>
+    <aside className="consent-banner" aria-label="Preferências de privacidade">
+      <div className="consent-banner-copy">
+        <span className="consent-shield" aria-hidden="true">P</span>
+        <p>
+          <strong>Privacidade sob seu controle.</strong>
+          Este site usa uma sessão anônima e cookies necessários. Com sua permissão, registra interações
+          educativas visíveis em <em>O que sabemos sobre você</em>. Nenhum dado pessoal identificável é coletado.
+        </p>
+      </div>
       <div className="consent-banner-actions">
         <button onClick={() => decidir(false, false)}>Recusar opcionais</button>
         <button onClick={() => decidir(true, false)}>Só preferências</button>
@@ -39,6 +42,6 @@ export function ConsentBanner() {
           Aceitar tudo
         </button>
       </div>
-    </div>
+    </aside>
   );
 }

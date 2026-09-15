@@ -20,9 +20,10 @@ export function Dashboard() {
 
   if (!dados) {
     return (
-      <section className="page">
-        <h1>Dashboard</h1>
-        <p>Carregando...</p>
+      <section className="page page-loading" aria-live="polite">
+        <span className="loading-mark" aria-hidden="true" />
+        <h1>Preparando visão agregada</h1>
+        <p>Calculando indicadores anônimos...</p>
       </section>
     );
   }
@@ -31,43 +32,56 @@ export function Dashboard() {
 
   return (
     <section className="page page-dashboard">
-      <h1>Dashboard (apresentação acadêmica)</h1>
-      <p className="lead">
-        Números agregados de todos os visitantes anônimos. Nenhum dado individual identificável é
-        exibido aqui.
-      </p>
+      <header className="page-header page-header-split">
+        <div>
+          <span className="page-kicker">Visão acadêmica</span>
+          <h1>Indicadores agregados</h1>
+        </div>
+        <p className="lead">
+          Números agregados de visitantes anônimos. Nenhum dado individual identificável é exibido aqui.
+        </p>
+      </header>
 
-      <div className="card-grid">
-        <div className="card metric">
+      <div className="card-grid metrics-grid">
+        <article className="card metric">
+          <span className="metric-icon" aria-hidden="true">◌</span>
           <span className="metric-value">{dados.totalUsers}</span>
           <span className="metric-label">Usuários (sessões anônimas)</span>
-        </div>
-        <div className="card metric">
+        </article>
+        <article className="card metric">
+          <span className="metric-icon" aria-hidden="true">✓</span>
           <span className="metric-value">{(dados.quizCompletionRate * 100).toFixed(0)}%</span>
           <span className="metric-label">Taxa de conclusão do quiz</span>
-        </div>
-        <div className="card metric">
+        </article>
+        <article className="card metric">
+          <span className="metric-icon" aria-hidden="true">↗</span>
           <span className="metric-value">{(dados.privacyActionRate * 100).toFixed(0)}%</span>
           <span className="metric-label">Taxa de ações de privacidade</span>
-        </div>
-        <div className="card metric">
+        </article>
+        <article className="card metric">
+          <span className="metric-icon" aria-hidden="true">◇</span>
           <span className="metric-value">{dados.totalEvents}</span>
           <span className="metric-label">Eventos registrados</span>
-        </div>
+        </article>
       </div>
 
-      <h2>Distribuição de segmentos RFV</h2>
+      <section className="content-panel chart-panel">
+      <div className="section-title-row">
+        <div><span className="page-kicker">Leitura posicional</span><h2>Distribuição de segmentos RFV</h2></div>
+        <span className="section-count">Dados agregados</span>
+      </div>
       <div className="bar-chart">
         {Object.entries(dados.segmentDistribution).map(([segmento, quantidade]) => (
           <div className="bar-row" key={segmento}>
             <span className="bar-label">{SEGMENTO_LABEL[segmento] ?? segmento}</span>
-            <div className="bar-track">
+            <div className="bar-track" aria-label={`${quantidade} no segmento ${SEGMENTO_LABEL[segmento] ?? segmento}`}>
               <div className="bar-fill" style={{ width: `${(quantidade / maiorSegmento) * 100}%` }} />
             </div>
             <span className="bar-value">{quantidade}</span>
           </div>
         ))}
       </div>
+      </section>
     </section>
   );
 }

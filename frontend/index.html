@@ -1,10 +1,32 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta
+      name="description"
+      content="Privora transforma dados e privacidade em uma experiência clara para você compreender, visualizar e controlar."
+    />
+    <meta name="theme-color" content="#f4f2ed" />
+    <script>
+      (() => {
+        try {
+          const savedTheme = localStorage.getItem("privora-theme");
+          const theme = savedTheme === "dark" ? "dark" : "light";
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+          document.querySelector('meta[name="theme-color"]')?.setAttribute(
+            "content",
+            theme === "dark" ? "#17141d" : "#f4f2ed",
+          );
+        } catch {
+          document.documentElement.dataset.theme = "light";
+          document.documentElement.style.colorScheme = "light";
+        }
+      })();
+    </script>
+    <title>Privora — Seus dados, sob sua perspectiva</title>
   </head>
   <body>
     <div id="root"></div>
