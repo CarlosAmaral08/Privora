@@ -17,8 +17,8 @@ export class DocumentLoadError extends Error {
 
 /**
  * Extrai conteúdo somente quando chamado pela UI após o clique do usuário.
- * O texto retornado existe apenas em memória e não é enviado à Privora, ao
- * backend, ao OpenRouter ou a serviços de IA.
+ * O texto retornado existe apenas em memória na extensão. Após a ação explícita
+ * do usuário, o popup pode enviá-lo ao backend da Privora para análise.
  */
 export class BrowserPageContentExtractor implements PageContentExtractor {
   async extractDocument(page: PageContext, document: DiscoveredDocument): Promise<ExtractedPageContent> {

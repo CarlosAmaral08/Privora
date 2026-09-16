@@ -2,8 +2,12 @@ export type AnalysisState =
   | "idle"
   | "discovering"
   | "analyzing"
+  | "sending"
   | "success"
   | "error"
+  | "network-error"
+  | "timeout"
+  | "service-unavailable"
   | "unsupported"
   | "manual-required";
 
@@ -48,17 +52,48 @@ export interface ExtractionQuality {
   listingSignals: number;
 }
 
-export interface AnalysisSection {
-  id: "collectedData" | "purposes" | "sharing" | "retention" | "rights" | "controls";
-  title: string;
+export interface AnalysisEvidenceItem {
+  name: string;
+  evidence: string;
+}
+
+export interface AnalysisSharingItem {
+  recipient: string;
+  purpose: string;
+  evidence: string;
+}
+
+export interface AnalysisRetention {
   summary: string;
-  items: string[];
+  evidence: string;
+}
+
+export interface AnalysisActionItem {
+  action: string;
+  evidence: string;
+}
+
+export interface AnalysisRightItem {
+  right: string;
+  evidence: string;
+}
+
+export interface AnalysisCrmAndProfiling {
+  usesPersonalization: boolean | null;
+  usesMarketing: boolean | null;
+  usesProfiling: boolean | null;
+  summary: string;
+  evidence: string;
 }
 
 export interface AnalysisResult {
-  sourceUrl: string;
-  sourceTitle: string;
   summary: string;
-  sections: AnalysisSection[];
-  generatedBy: "development-mock" | "privora-backend";
+  dataCategories: AnalysisEvidenceItem[];
+  purposes: AnalysisEvidenceItem[];
+  sharing: AnalysisSharingItem[];
+  retention: AnalysisRetention;
+  userControls: AnalysisActionItem[];
+  rights: AnalysisRightItem[];
+  crmAndProfiling: AnalysisCrmAndProfiling;
+  caveats: string[];
 }

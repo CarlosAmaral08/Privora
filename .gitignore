@@ -20,6 +20,8 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+!extension/.env.development
+!extension/.env.production
 
 # =========================
 # FRONTEND - NODE / VITE

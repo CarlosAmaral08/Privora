@@ -18,10 +18,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(PolicyAnalysisController.class)
+@WebMvcTest(
+        controllers = PolicyAnalysisController.class,
+        properties = "app.cors.allowed-origins=https://privora.zapeu.net,chrome-extension://abcdefghijklmnopabcdefghijklmnop"
+)
 @Import(GlobalExceptionHandler.class)
 class PolicyAnalysisControllerTest {
 
@@ -30,6 +35,27 @@ class PolicyAnalysisControllerTest {
 
     @MockBean
     private PolicyAnalysisService policyAnalysisService;
+
+    @Test
+    void permiteOrigemExataDaExtensaoConfigurada() throws Exception {
+        mockMvc.perform(options("/api/policy-analyses")
+                        .header("Origin", "chrome-extension://abcdefghijklmnopabcdefghijklmnop")
+                        .header("Access-Control-Request-Method", "POST")
+                        .header("Access-Control-Request-Headers", "content-type"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin",
+                        "chrome-extension://abcdefghijklmnopabcdefghijklmnop"));
+    }
+
+    @Test
+    void rejeitaOrigemDaExtensaoNaoConfigurada() throws Exception {
+        mockMvc.perform(options("/api/policy-analyses")
+                        .header("Origin", "chrome-extension://ponmlkjihgfedcbaponmlkjihgfedcba")
+                        .header("Access-Control-Request-Method", "POST")
+                        .header("Access-Control-Request-Headers", "content-type"))
+                .andExpect(status().isForbidden())
+                .andExpect(header().doesNotExist("Access-Control-Allow-Origin"));
+    }
 
     @Test
     void rejeitaJsonMalformado() throws Exception {

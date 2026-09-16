@@ -9,30 +9,35 @@ import {
   BrowserPrivacyDocumentDiscovery,
   identifyCurrentDocument,
 } from "../services/privacyDocumentDiscovery";
+import { HttpPrivoraAnalysisClient, PrivoraApiError } from "../services/privoraApi";
 import type {
   AnalysisState,
   DiscoveredDocument,
-  ExtractedPageContent,
   PageContext,
   PrivacyDocumentType,
 } from "../types/analysis";
+import { renderPolicyAnalysis } from "./analysisResult";
 
 type Theme = "light" | "dark";
 
 const THEME_KEY = "privora-extension-theme";
 const MIN_RELEVANT_CHARACTERS = 300;
-const PREVIEW_CHARACTERS = 720;
 const DEFAULT_ALTERNATIVE_LIMIT = 3;
 const DEFAULT_VISIBLE_CONFIDENCE = 0.68;
 const contentExtractor = new BrowserPageContentExtractor();
 const documentDiscovery = new BrowserPrivacyDocumentDiscovery();
+const analysisClient = new HttpPrivoraAnalysisClient();
 
 const STATE_MESSAGES: Record<AnalysisState, string> = {
   idle: "Escolha o que deseja analisar",
   discovering: "Procurando documentos de privacidade…",
-  analyzing: "Extraindo conteúdo do documento…",
-  success: "Prévia local concluída",
+  analyzing: "Analisando conteúdo…",
+  sending: "Enviando para a Privora…",
+  success: "Análise concluída",
   error: "Não foi possível concluir a análise",
+  "network-error": "Erro de rede",
+  timeout: "A análise demorou demais",
+  "service-unavailable": "Serviço de análise indisponível",
   unsupported: "Página sem conteúdo adequado",
   "manual-required": "Política aberta em nova aba",
 };
@@ -65,25 +70,25 @@ export function mountPopup(root: HTMLDivElement): void {
   });
 
   analyzeButton.addEventListener("click", () => {
-    if (state === "analyzing" || state === "discovering" || !page || !selectedDocument) return;
+    if (isBusyState(state) || !page || !selectedDocument) return;
     analyzeSelectedDocumentFromClick(selectedDocument);
   });
 
   analyzeCurrentButton.addEventListener("click", async () => {
-    if (state === "analyzing" || state === "discovering" || !page) return;
+    if (isBusyState(state) || !page) return;
     await analyzeSource(undefined, true);
   });
 
   resultRegion.addEventListener("click", (event) => {
     const disclosureButton = (event.target as Element).closest<HTMLButtonElement>("[data-toggle-documents]");
-    if (disclosureButton && state !== "analyzing" && page) {
+    if (disclosureButton && !isBusyState(state) && page) {
       showAllDocuments = !showAllDocuments;
       renderDiscoveryResult(resultRegion, page, documents, selectedDocument, showAllDocuments);
       return;
     }
 
     const button = (event.target as Element).closest<HTMLButtonElement>("[data-document-index]");
-    if (!button || state === "analyzing") return;
+    if (!button || isBusyState(state)) return;
     const index = Number(button.dataset.documentIndex);
     if (!Number.isInteger(index) || !documents[index]) return;
     selectedDocument = documents[index];
@@ -246,8 +251,20 @@ export function mountPopup(root: HTMLDivElement): void {
         return;
       }
 
+      setState("sending");
+      renderSending(resultRegion, content.title);
+      renderControls();
+
+      const analysis = await analysisClient.analyze({
+        sourceUrl: content.sourceUrl,
+        title: content.title,
+        text: content.relevantText,
+      });
       setState("success");
-      renderLocalPreview(resultRegion, content, Boolean(document), forcedCurrentPage);
+      renderPolicyAnalysis(resultRegion, analysis, {
+        title: content.title,
+        url: content.sourceUrl,
+      });
       renderControls();
     } catch (error) {
       if (automaticContinuation && document && !extractionCompleted) {
@@ -257,6 +274,10 @@ export function mountPopup(root: HTMLDivElement): void {
       }
       if (error instanceof DocumentLoadError && document && allowContinuation) {
         continueAnalysisInNewTab({ ...document, url: error.documentUrl });
+        return;
+      }
+      if (error instanceof PrivoraApiError) {
+        renderPrivoraApiFailure(error);
         return;
       }
       logError("Não foi possível extrair o conteúdo da página", error);
@@ -297,7 +318,7 @@ export function mountPopup(root: HTMLDivElement): void {
     state = nextState;
     status.dataset.state = state;
     status.querySelector<HTMLElement>("[data-status-text]")!.textContent = STATE_MESSAGES[state];
-    resultRegion.setAttribute("aria-busy", String(state === "analyzing" || state === "discovering"));
+    resultRegion.setAttribute("aria-busy", String(isBusyState(state)));
   }
 
   function renderControls(): void {
@@ -307,7 +328,7 @@ export function mountPopup(root: HTMLDivElement): void {
       analyzeCurrentButton.hidden = true;
       return;
     }
-    const isBusy = state === "analyzing" || state === "discovering";
+    const isBusy = isBusyState(state);
     const canUsePage = Boolean(page?.supported);
     const canAnalyzeDocument = Boolean(selectedDocument && canUsePage);
     analyzeButton.hidden = !canAnalyzeDocument;
@@ -317,6 +338,47 @@ export function mountPopup(root: HTMLDivElement): void {
     const currentIsSelected = Boolean(page && selectedDocument && sameDocumentUrl(page.url, selectedDocument.url));
     analyzeCurrentButton.hidden = !canUsePage || currentIsSelected || state === "success";
     analyzeCurrentButton.disabled = isBusy;
+  }
+
+  function renderPrivoraApiFailure(error: PrivoraApiError): void {
+    logError("A análise pelo backend não foi concluída", error);
+    if (error.code === "network-error") {
+      setState("network-error");
+      renderAnalysisFailure(
+        resultRegion,
+        "Não foi possível acessar a Privora",
+        "Verifique sua conexão e tente novamente.",
+      );
+    } else if (error.code === "timeout") {
+      setState("timeout");
+      renderAnalysisFailure(
+        resultRegion,
+        "A análise demorou além do esperado",
+        "O documento continua disponível. Tente novamente em instantes.",
+      );
+    } else if (error.code === "service-unavailable") {
+      setState("service-unavailable");
+      renderAnalysisFailure(
+        resultRegion,
+        "Serviço de análise indisponível",
+        "A Privora não pode analisar o documento agora. Tente novamente mais tarde.",
+      );
+    } else if (error.code === "invalid-request") {
+      setState("error");
+      renderAnalysisFailure(
+        resultRegion,
+        "O conteúdo não pôde ser enviado",
+        "A política extraída não atende aos limites aceitos pela Privora.",
+      );
+    } else {
+      setState("error");
+      renderAnalysisFailure(
+        resultRegion,
+        "Não foi possível gerar a análise",
+        "A Privora não recebeu uma resposta estruturada válida. Tente novamente.",
+      );
+    }
+    renderControls();
   }
 }
 
@@ -353,13 +415,13 @@ function createShell(): string {
           </div>
           <button class="analyze-button" type="button" data-analyze hidden></button>
           <button class="secondary-action" type="button" data-analyze-current hidden>Analisar página atual mesmo assim</button>
-          <p class="action-note">A leitura e eventual requisição à origem só começam quando você solicitar.</p>
+          <p class="action-note">Após sua solicitação, o texto extraído é enviado ao backend da Privora para análise por IA.</p>
         </section>
 
         <section class="result-region" data-result aria-live="polite" aria-busy="true"></section>
       </main>
 
-      <footer><span aria-hidden="true"></span>Sem persistência de conteúdo, histórico, documentos ou dados de uso.</footer>
+      <footer><span aria-hidden="true"></span>Sem persistência de conteúdo, histórico, documentos ou análises.</footer>
     </div>
   `;
 }
@@ -458,7 +520,18 @@ function renderAnalyzing(region: HTMLElement, documentTitle?: string): void {
     <div class="processing-state">
       <span class="processing-orbit" aria-hidden="true"><i></i></span>
       <strong>${documentTitle ? `Lendo ${escapeHtml(documentTitle)}` : "Lendo a página atual"}</strong>
-      <p>O conteúdo existe somente em memória durante esta ação.</p>
+      <p>Selecionando o texto relevante que será analisado.</p>
+      <div class="skeleton-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+    </div>
+  `;
+}
+
+function renderSending(region: HTMLElement, title: string): void {
+  region.innerHTML = `
+    <div class="processing-state">
+      <span class="processing-orbit" aria-hidden="true"><i></i></span>
+      <strong>Enviando para a Privora</strong>
+      <p>${escapeHtml(title)} está sendo processado pelo backend para gerar a análise estruturada.</p>
       <div class="skeleton-lines" aria-hidden="true"><span></span><span></span><span></span></div>
     </div>
   `;
@@ -522,55 +595,20 @@ function renderPermissionDenied(region: HTMLElement): void {
   `;
 }
 
-function renderLocalPreview(
-  region: HTMLElement,
-  content: ExtractedPageContent,
-  isPrivacyDocument: boolean,
-  forcedCurrentPage: boolean,
-): void {
-  const characterCount = new Intl.NumberFormat("pt-BR").format(content.relevantText.length);
-  const excerpt = content.relevantText.slice(0, PREVIEW_CHARACTERS).trim();
-  const excerptSuffix = content.relevantText.length > PREVIEW_CHARACTERS ? "…" : "";
-  const heading = forcedCurrentPage ? "Prévia da página atual" : "Documento pronto para análise local";
-  const explanation = forcedCurrentPage
-    ? "Este recorte foi solicitado manualmente e não classifica a página como conteúdo de privacidade."
-    : isPrivacyDocument
-      ? "A relevância vem dos sinais do documento selecionado, não da quantidade de texto."
-      : "Conteúdo extraído localmente.";
-  region.innerHTML = `
-    <div class="result-heading local-result-heading">
-      <span class="local-badge"><i aria-hidden="true"></i> Processamento local</span>
-      <h2>${heading}</h2>
-      <p>${explanation}</p>
-    </div>
-    <div class="local-preview">
-      <div class="extraction-metric">
-        <small>Texto extraído</small>
-        <strong>≈ ${characterCount}</strong>
-        <span>caracteres na prévia</span>
-      </div>
-      <dl class="preview-metadata">
-        <div><dt>Título</dt><dd>${escapeHtml(content.title)}</dd></div>
-        <div><dt>Origem</dt><dd title="${escapeHtml(content.sourceUrl)}">${escapeHtml(formatUrl(content.sourceUrl))}</dd></div>
-      </dl>
-      <div class="excerpt-block">
-        <div><span>Trecho extraído</span><small>limitado para visualização</small></div>
-        <p>${escapeHtml(excerpt)}${excerptSuffix}</p>
-      </div>
-      <div class="local-notice"><span aria-hidden="true">✓</span><strong>Nenhum conteúdo é enviado à Privora, backend, OpenRouter ou serviços de IA. O documento original pode ser requisitado diretamente de sua própria origem após sua ação explícita.</strong></div>
-    </div>
-    <a class="source-link" href="${escapeHtml(content.sourceUrl)}" target="_blank" rel="noreferrer">
-      <span><small>Fonte original</small><strong>${escapeHtml(formatUrl(content.sourceUrl))}</strong></span>
-      <i aria-hidden="true">↗</i>
-    </a>
-  `;
-}
-
 function renderUnsupported(region: HTMLElement, message: string): void {
   region.innerHTML = `
     <div class="message-state warning-state">
       <span aria-hidden="true">◇</span>
       <div><strong>Sem conteúdo adequado</strong><p>${escapeHtml(message)}</p></div>
+    </div>
+  `;
+}
+
+function renderAnalysisFailure(region: HTMLElement, title: string, message: string): void {
+  region.innerHTML = `
+    <div class="message-state error-state">
+      <span aria-hidden="true">!</span>
+      <div><strong>${escapeHtml(title)}</strong><p>${escapeHtml(message)}</p></div>
     </div>
   `;
 }
@@ -586,10 +624,15 @@ function renderError(region: HTMLElement): void {
 
 function primaryButtonLabel(state: AnalysisState, document: DiscoveredDocument): string {
   if (state === "analyzing") return '<span class="button-spinner" aria-hidden="true"></span><span>Analisando…</span>';
+  if (state === "sending") return '<span class="button-spinner" aria-hidden="true"></span><span>Enviando…</span>';
   if (state === "discovering") return '<span class="button-spinner" aria-hidden="true"></span><span>Procurando…</span>';
   if (state === "success") return `<span>Analisar ${documentActionName(document.type)} novamente</span><span aria-hidden="true">↗</span>`;
   if (state === "unsupported" || state === "error") return `<span>Tentar analisar ${documentActionName(document.type)} novamente</span><span aria-hidden="true">↗</span>`;
   return `<span>Analisar ${documentActionName(document.type)}</span><span aria-hidden="true">↗</span>`;
+}
+
+function isBusyState(state: AnalysisState): boolean {
+  return state === "analyzing" || state === "sending" || state === "discovering";
 }
 
 function mergeDocuments(current: DiscoveredDocument | null, discovered: DiscoveredDocument[]): DiscoveredDocument[] {

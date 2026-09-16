@@ -5,21 +5,24 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
 /**
- * Configuracao de CORS: sem isso, o navegador bloqueia o frontend (porta 5173)
- * de chamar o backend (porta 8080), porque sao "origens" diferentes.
- * allowCredentials(true) e necessario para o cookie de sessao funcionar.
+ * Configuracao de CORS com origens exatas. A origem do site continua habilitada
+ * e os IDs autorizados da extensao podem ser acrescentados por ambiente.
+ * allowCredentials(true) permanece necessario para os fluxos web com sessao;
+ * o cliente da extensao usa credentials=omit.
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${app.cors.allowed-origin}")
-    private String allowedOrigin;
+    @Value("${app.cors.allowed-origins}")
+    private List<String> allowedOrigins;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(allowedOrigin)
+                .allowedOrigins(allowedOrigins.toArray(String[]::new))
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

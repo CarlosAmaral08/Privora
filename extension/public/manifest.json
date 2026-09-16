@@ -4,6 +4,7 @@
   "description": "Torne políticas de privacidade mais claras e compreensíveis.",
   "version": "0.1.0",
   "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://privora.zapeu.net/*"],
   "optional_host_permissions": ["https://*/*", "http://*/*"],
   "background": {
     "service_worker": "service-worker.js",

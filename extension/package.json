@@ -5,11 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "vitest run",
     "lint": "tsc --noEmit",
-    "build": "tsc --noEmit && vite build"
+    "build": "tsc --noEmit && vite build",
+    "build:dev": "tsc --noEmit && vite build --mode development"
   },
   "devDependencies": {
     "typescript": "~6.0.2",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "vitest": "^4.1.0"
   }
 }
