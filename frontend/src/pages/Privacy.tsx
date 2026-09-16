@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
 
 const cards = [
@@ -69,6 +70,20 @@ export function Privacy() {
             <li key={direito}><span aria-hidden="true">→</span>{direito}</li>
           ))}
         </ul>
+      </section>
+
+      <section className="content-panel policy-reference-panel" aria-labelledby="policy-reference-title">
+        <div>
+          <span className="page-kicker">Documento público</span>
+          <h2 id="policy-reference-title">Como a própria Privora trata dados</h2>
+          <p>
+            Consulte o documento formal que descreve o portal, a extensão Chromium, a análise por IA,
+            os terceiros envolvidos e os controles disponíveis.
+          </p>
+        </div>
+        <Link to="/privacy-policy" className="button policy-reference-link">
+          Ler Política de Privacidade <span aria-hidden="true">→</span>
+        </Link>
       </section>
 
       <p className="page-closing">Entenda seus dados. Conheça seus direitos. Assuma o controle.</p>

@@ -4,6 +4,7 @@ import { ConsentBanner } from "./components/ConsentBanner";
 import { SessionProvider, useSession } from "./context/SessionContext";
 import { Home } from "./pages/Home";
 import { Privacy } from "./pages/Privacy";
+import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { WhatWeKnow } from "./pages/WhatWeKnow";
 import { Quiz } from "./pages/Quiz";
 import { Settings } from "./pages/Settings";
@@ -23,8 +24,9 @@ function AppShell() {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
-	  <Route path="/apresentacao" element={<Apresentacao />} />
+          <Route path="/apresentacao" element={<Apresentacao />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/what-we-know" element={<WhatWeKnow />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/settings" element={<Settings />} />
