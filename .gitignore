@@ -87,3 +87,4 @@ temp/
 # Extension build/deps
 extension/node_modules/
 extension/dist/
+extension/*.zip

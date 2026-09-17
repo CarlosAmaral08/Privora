@@ -1,5 +1,6 @@
 {
   "manifest_version": 3,
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy0zGj+HHKTjuZz2rCKMVpMgS8VjulsdpZild+n5Gg2TucQX+rbVZdnRlduDeM6s1TTDDNK1MUlunBYD9VB8LhuA5epBQqMUt26jrcq8zUKc2JSoikp6BhtXWYsNWU879HuDlBkPgGdBdNpWCU4EWsFK9qVfpdpeVoHlaPNzjdGoxFloAxKEejKOx9/K6Gra3e/txKKwiEOCs1oclloGwMXJB3Vm0d7zaJgirVfKzgrecFfpCY6Cq//Z3VZ2+YfX+tZ1tgW8trysPWUsFQMXstigiHqa7skMHp2Jzo1VBGiUwxs7ilAA8pPwekFzXjAa3C83MNj4EwrMP3klbclYyTwIDAQAB",
   "name": "Privora",
   "description": "Torne políticas de privacidade mais claras e compreensíveis.",
   "version": "0.1.0",
