@@ -150,6 +150,21 @@ A IA deve:
 
 A análise não substitui a política original, que continua acessível no popup.
 
+### Proteção operacional do endpoint
+
+O rate limiter em memória é aplicado somente a `POST /api/policy-analyses`, antes de qualquer chamada ao OpenRouter. Os padrões atuais são:
+
+- 10 análises por cliente/IP a cada 10 minutos;
+- 30 análises por cliente/IP a cada 24 horas;
+- 200 análises globais a cada 24 horas;
+- no máximo 3 análises simultâneas no OpenRouter.
+
+Quando um limite individual ou global é atingido, a API responde `429 Too Many Requests` no mesmo formato JSON dos demais erros e inclui `Retry-After`. Se as vagas simultâneas estiverem ocupadas, responde `503 Service Unavailable`, também com `Retry-After`, sem iniciar outra chamada ao provedor.
+
+Por padrão, o cliente é identificado por `request.getRemoteAddr()`. Quando `PRIVORA_TRUST_CLOUDFLARE_IP=true`, o backend aceita `CF-Connecting-IP` somente se o valor for um endereço IP válido; caso contrário, volta a usar o endereço remoto. `X-Forwarded-For` não é usado. Habilite essa confiança apenas quando o origin estiver protegido contra acesso direto fora do Cloudflare.
+
+Os IPs e contadores não são persistidos nem incluídos em logs normais. Buckets inativos são removidos depois da janela diária. Como o estado é local ao processo, reiniciar o backend zera os contadores; a solução é adequada ao deployment atual de uma instância, mas exige armazenamento compartilhado para funcionar corretamente com múltiplas réplicas.
+
 ## Privacidade e limites do processamento
 
 - Abrir o popup permite a descoberta local de links; a extração do texto e o envio para análise dependem de uma ação explícita do usuário.
@@ -188,6 +203,14 @@ As propriedades são lidas de variáveis de ambiente:
 | `OPENROUTER_TIMEOUT` | Não | `30s` | Timeout de conexão e leitura |
 | `OPENROUTER_MAX_OUTPUT_TOKENS` | Não | `2500` | Limite da resposta do modelo |
 | `CORS_ALLOWED_ORIGINS` | Não | `https://privora.zapeu.net` | Lista de origens exatas separadas por vírgula |
+| `PRIVORA_RATE_LIMIT_ENABLED` | Não | `true` | Ativa os limites de requisições e concorrência |
+| `PRIVORA_RATE_LIMIT_SHORT_REQUESTS` | Não | `10` | Máximo por cliente na janela curta |
+| `PRIVORA_RATE_LIMIT_SHORT_WINDOW` | Não | `10m` | Duração da janela curta |
+| `PRIVORA_RATE_LIMIT_DAILY_REQUESTS` | Não | `30` | Máximo por cliente na janela diária |
+| `PRIVORA_RATE_LIMIT_DAILY_WINDOW` | Não | `24h` | Duração da janela diária individual e global |
+| `PRIVORA_RATE_LIMIT_GLOBAL_DAILY_REQUESTS` | Não | `200` | Máximo global na janela diária |
+| `PRIVORA_RATE_LIMIT_MAX_CONCURRENT` | Não | `3` | Máximo de chamadas OpenRouter simultâneas |
+| `PRIVORA_TRUST_CLOUDFLARE_IP` | Não | `false` | Usa `CF-Connecting-IP` válido como identificador do cliente |
 
 Nunca grave `OPENROUTER_API_KEY` em arquivos versionados, no frontend ou na extensão.
 
@@ -304,7 +327,7 @@ mvn test
 mvn package
 ```
 
-Os testes do backend cobrem validação do endpoint, CORS configurável, montagem do request ao OpenRouter, timeout, erros do provedor, parsing do JSON estruturado e regras básicas do prompt.
+Os testes do backend cobrem validação do endpoint, CORS configurável, rate limits individual/global, resolução segura do IP, concorrência, montagem do request ao OpenRouter, timeout, erros do provedor, parsing do JSON estruturado e regras básicas do prompt.
 
 ### Verificação do diff
 
@@ -337,6 +360,7 @@ git diff --check
 - O CORS aceita somente as origens exatas presentes em `CORS_ALLOWED_ORIGINS`; não use wildcard.
 - Quando houver um ID da Chrome Web Store, inclua `chrome-extension://ID_DA_STORE` em `CORS_ALLOWED_ORIGINS`.
 - O segredo do OpenRouter permanece somente no ambiente do backend.
+- Em produção atrás do Cloudflare, `PRIVORA_TRUST_CLOUDFLARE_IP=true` permite limitar pelo IP original válido. O origin deve aceitar tráfego somente do proxy confiável para impedir falsificação direta do header.
 - O H2 atual atende ao MVP e ao uso acadêmico, mas não é a escolha prevista para uma implantação de produção com concorrência e volume reais.
 
 ## Chrome Web Store
@@ -361,6 +385,7 @@ Antes de uma publicação, devem ser mantidos:
 - O conteúdo e a resposta da análise não são persistidos; não existe histórico de análises.
 - O portal usa sessão anônima por cookie, sem autenticação de conta.
 - O H2 em arquivo não é adequado para uma produção com múltiplos usuários e alta concorrência.
+- O rate limiter fica na memória de uma única instância; reinícios zeram os contadores e múltiplas réplicas exigiriam estado compartilhado.
 
 ## Segurança
 
@@ -371,6 +396,7 @@ Antes de uma publicação, devem ser mantidos:
 - O texto da política é tratado como entrada não confiável no prompt; instruções contidas nele devem ser ignoradas.
 - A resposta do modelo precisa respeitar o JSON Schema e ainda é validada pelo backend antes de chegar ao popup.
 - A UI escapa o conteúdo textual antes de inseri-lo no HTML.
+- O endpoint de análise limita requisições por IP, volume global e concorrência sem persistir o IP ou registrar o conteúdo analisado.
 
 ## Estrutura do repositório
 
@@ -387,6 +413,7 @@ Privora/
 │   │   ├── controller/       # endpoints REST
 │   │   ├── service/          # regras de aplicação
 │   │   ├── openrouter/       # cliente e parser da análise por IA
+│   │   ├── ratelimit/        # limites por cliente, globais e de concorrência
 │   │   ├── rfv/              # cálculo e segmentos RFV
 │   │   ├── entity/           # entidades persistidas do portal
 │   │   └── repository/       # acesso JPA ao H2
