@@ -273,7 +273,7 @@ export function Home() {
           </p>
           <div className="extension-actions">
             <a
-              href="https://chromewebstore.google.com/detail/jfbnopjkjpjjhhmgmeeedgjkkoogleid/preview?hl=pt-BR&authuser=0"
+              href="https://chromewebstore.google.com/detail/jfbnopjkjpjjhhmgmeeedgjkkoogleid"
               target="_blank"
               rel="noopener noreferrer"
               className="button button-primary"
