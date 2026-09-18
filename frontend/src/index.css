@@ -1543,7 +1543,7 @@ blockquote {
   color: #fff;
 }
 
-.development-pill {
+.availability-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -1559,12 +1559,12 @@ blockquote {
   text-transform: uppercase;
 }
 
-.development-pill > span {
+.availability-pill > span {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--warning);
-  box-shadow: 0 0 0 4px var(--warning-soft);
+  background: var(--lime);
+  box-shadow: 0 0 0 4px rgba(200, 243, 106, 0.12);
 }
 
 .extension-copy h2 {
@@ -1575,6 +1575,12 @@ blockquote {
   padding-left: 1rem;
   border-left: 2px solid var(--violet-bright);
   font-size: 0.77rem;
+}
+
+.extension-actions {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1.8rem;
 }
 
 .extension-demo {
@@ -1868,6 +1874,12 @@ blockquote {
 .closing-section > p {
   margin: 1.3rem auto 0;
   color: #99949f;
+}
+
+.closing-section > .campaign-slogan {
+  color: #fff;
+  font-weight: 750;
+  letter-spacing: 0.01em;
 }
 
 .closing-actions {
@@ -3673,7 +3685,7 @@ blockquote {
     grid-column: 1;
   }
 
-  .development-pill {
+  .availability-pill {
     margin-bottom: 2rem;
   }
 

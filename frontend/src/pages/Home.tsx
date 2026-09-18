@@ -29,18 +29,16 @@ const journey = [
   },
 ];
 
-const collectedData = [
-  "Identificador anônimo da sessão",
-  "Datas da primeira e da última visita",
-  "Interações realizadas dentro da Privora",
-  "Consentimentos e resultado do quiz",
+const portalFeatures = [
+  "Visualizar o identificador, as datas e os eventos associados à sua sessão",
+  "Conhecer direitos e testar seus conhecimentos no conteúdo educativo e no quiz",
+  "Revisar consentimentos, exportar os dados exibidos ou excluir a sessão",
 ];
 
-const excludedData = [
-  "Nome, e-mail ou CPF",
-  "Localização ou impressão digital do dispositivo",
-  "Histórico de navegação fora da Privora",
-  "Conteúdo de outras páginas ou aplicativos",
+const extensionFeatures = [
+  "Encontrar políticas, termos e documentos de cookies na página escolhida",
+  "Organizar categorias de dados, finalidades, compartilhamento e retenção quando informada",
+  "Consultar controles, direitos, ressalvas e a fonte original do documento analisado",
 ];
 
 export function Home() {
@@ -56,27 +54,26 @@ export function Home() {
         <div className="hero-copy">
           <span className="eyebrow">
             <span className="eyebrow-dot" aria-hidden="true" />
-            Privacidade que você consegue ver
+            Transparência para escolhas conscientes
           </span>
           <h1 id="hero-title">
-            Seus dados fazem sentido <em>quando você pode entendê-los.</em>
+            Seus dados. <em>Seus direitos. Suas regras.</em>
           </h1>
           <p>
-            Informação disponível não significa informação acessível. A Privora transforma o que um
-            serviço sabe sobre você em uma experiência clara — para compreender, visualizar e controlar.
+            Entenda como seus dados são utilizados sem precisar ser especialista em tecnologia ou legislação.
           </p>
           <div className="hero-actions">
             <Link to="/what-we-know" className="button button-primary">
-              Explorar o que sabemos <span aria-hidden="true">↗</span>
+              Ver o que sabemos sobre você <span aria-hidden="true">↗</span>
             </Link>
             <Link to="/privacy" className="button button-secondary">
-              Entender privacidade e LGPD
+              Entender privacidade
             </Link>
           </div>
           <div className="hero-trust" aria-label="Princípios da Privora">
-            <span>Sem identificação pessoal</span>
-            <span>Sem rastreamento externo</span>
-            <span>Escolhas reversíveis</span>
+            <span>Clareza sem juridiquês</span>
+            <span>Escolhas visíveis</span>
+            <span>Fonte original preservada</span>
           </div>
         </div>
 
@@ -103,11 +100,11 @@ export function Home() {
         <div className="section-heading section-heading-split">
           <div>
             <span className="section-kicker">01 — O problema</span>
-            <h2 id="problem-title">Disponível no papel. Distante na prática.</h2>
+            <h2 id="problem-title">Informação disponível não significa informação acessível.</h2>
           </div>
           <p>
-            Políticas e termos existem, mas muitas vezes chegam em textos longos, técnicos e difíceis de
-            transformar em decisões reais. Ter acesso ao documento é diferente de conseguir compreendê-lo.
+            Políticas extensas, linguagem técnica e informações dispersas dificultam entender quais dados são
+            tratados, por que são utilizados, com quem podem ser compartilhados e quais escolhas estão disponíveis.
           </p>
         </div>
 
@@ -115,8 +112,7 @@ export function Home() {
           <div className="research-intro">
             <span className="research-tag">Pesquisa exploratória · n=5</span>
             <p>
-              Um pequeno questionário do projeto ajudou a observar o intervalo entre preocupação,
-              compreensão e ação.
+              A pesquisa do grupo ajudou a observar a distância entre preocupação, compreensão e ação.
             </p>
           </div>
           <div className="research-results">
@@ -137,10 +133,11 @@ export function Home() {
       <section className="journey-section home-section" aria-labelledby="journey-title">
         <div className="section-heading centered-heading">
           <span className="section-kicker">02 — A proposta</span>
-          <h2 id="journey-title">Clareza antes da escolha.</h2>
+          <h2 id="journey-title">Privacidade pode ser mais simples.</h2>
           <p>
-            A Privora não demoniza CRM nem a coleta de dados. Ela propõe que o tratamento seja visível,
-            compreensível e proporcional ao serviço oferecido.
+            A Privora reduz a distância entre a informação que já existe e a capacidade do usuário de
+            compreendê-la e agir. Seus dados fazem parte da sua vida. Entender como eles são utilizados também é
+            um direito seu. A IA não substitui a política: ela ajuda a reduzir a fricção até a informação.
           </p>
         </div>
 
@@ -161,7 +158,7 @@ export function Home() {
       <section className="transparency-section home-section" aria-labelledby="transparency-title">
         <div className="transparency-copy">
           <span className="section-kicker light-kicker">03 — Transparência aplicada</span>
-          <h2 id="transparency-title">O que sabemos sobre você — sem letra miúda.</h2>
+          <h2 id="transparency-title">Veja o que esta experiência sabe sobre você.</h2>
           <p>
             Uma área real do produto reúne tudo o que esta experiência registra sobre a sua sessão.
             Você vê o identificador anônimo, datas, eventos, consentimentos, quiz e perfil RFV no mesmo lugar.
@@ -214,13 +211,14 @@ export function Home() {
       <section className="rfv-section home-section" aria-labelledby="rfv-title">
         <div className="section-heading section-heading-split">
           <div>
-            <span className="section-kicker">04 — CRM com contexto</span>
-            <h2 id="rfv-title">RFV é posição, não soma.</h2>
+            <span className="section-kicker">04 — CRM e responsabilidade</span>
+            <h2 id="rfv-title">Conhecer melhor também exige responsabilidade.</h2>
           </div>
           <p>
-            A Privora usa apenas interações dentro do serviço. O RFV organiza recência, frequência e valor
-            em posições distintas e pode ajudar a adaptar comunicações futuras ao estágio de conscientização —
-            não existe aqui um motor automático de campanhas.
+            CRM ajuda empresas a conhecer clientes e oferecer experiências mais relevantes. Quanto maior o
+            tratamento de dados, maior deve ser o compromisso com finalidade, necessidade e transparência.
+            Privacidade não precisa ser uma barreira para o relacionamento. Quando o uso de dados é transparente,
+            empresas e clientes podem construir relações mais confiáveis.
           </p>
         </div>
 
@@ -250,10 +248,10 @@ export function Home() {
           </div>
 
           <div className="rfv-explanation">
-            <span className="formula-label">Código posicional</span>
+            <span className="formula-label">RFV com contexto</span>
             <p>
-              <strong>155 e 551 contam histórias diferentes.</strong> Cada dígito preserva o significado
-              da sua dimensão; os valores não devem ser somados.
+              <strong>155 e 551 contam histórias diferentes.</strong> Na Privora, o RFV organiza apenas
+              interações realizadas dentro do portal e preserva o significado de cada dimensão.
             </p>
           </div>
         </div>
@@ -261,20 +259,31 @@ export function Home() {
 
       <section className="extension-section home-section" aria-labelledby="extension-title">
         <div className="extension-copy">
-          <span className="development-pill"><span aria-hidden="true" /> Em desenvolvimento</span>
-          <span className="section-kicker light-kicker">05 — Próximo capítulo</span>
-          <h2 id="extension-title">Uma extensão para tornar políticas legíveis.</h2>
+          <span className="availability-pill"><span aria-hidden="true" /> Disponível na Chrome Web Store</span>
+          <span className="section-kicker light-kicker">05 — Extensão Privora</span>
+          <h2 id="extension-title">Entenda políticas enquanto navega.</h2>
           <p>
-            A ideia é transformar políticas extensas em resumos estruturados e compreensíveis, sem remover
-            o contexto nem bloquear o acesso à fonte original.
+            A extensão Privora transforma políticas extensas em informações estruturadas e mais fáceis de
+            compreender, destacando dados, finalidades, compartilhamento, retenção quando informada, controles,
+            direitos e sinais de personalização, marketing ou perfilamento.
           </p>
           <p className="extension-disclaimer">
-            A extensão ainda não está funcional. Qualquer capacidade futura de observar páginas externas
-            deverá ser opcional, explicitamente autorizada e controlada pelo usuário.
+            A análise começa somente após sua ação. A extensão não monitora sua navegação geral, mantém a
+            fonte original disponível e não fornece parecer jurídico.
           </p>
+          <div className="extension-actions">
+            <a
+              href="https://chromewebstore.google.com/detail/jfbnopjkjpjjhhmgmeeedgjkkoogleid/preview?hl=pt-BR&authuser=0"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="button button-primary"
+            >
+              Instalar extensão para Chrome <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
 
-        <div className="extension-demo" aria-label="Fluxo conceitual da futura extensão">
+        <div className="extension-demo" aria-label="Fluxo visual da extensão Privora">
           <div className="browser-shell">
             <div className="browser-topbar">
               <div className="window-dots" aria-hidden="true"><span /><span /><span /></div>
@@ -300,31 +309,31 @@ export function Home() {
               </div>
             </div>
           </div>
-          <p className="concept-caption">Representação conceitual — não é uma extensão em funcionamento.</p>
+          <p className="concept-caption">Documento original → informações estruturadas → escolhas mais claras.</p>
         </div>
       </section>
 
       <section className="privacy-design-section home-section" aria-labelledby="privacy-design-title">
         <div className="section-heading centered-heading compact-heading">
-          <span className="section-kicker">06 — Privacidade por design</span>
-          <h2 id="privacy-design-title">Coletar menos também é uma decisão de produto.</h2>
+          <span className="section-kicker">06 — O que você pode fazer</span>
+          <h2 id="privacy-design-title">Entender é o primeiro passo para escolher.</h2>
         </div>
 
         <div className="privacy-columns">
           <article className="privacy-column collected-column">
-            <span className="column-icon" aria-hidden="true">+</span>
-            <p className="column-label">O que coletamos</p>
-            <h3>O mínimo para a experiência existir.</h3>
+            <span className="column-icon" aria-hidden="true">P</span>
+            <p className="column-label">No portal</p>
+            <h3>Informação que você pode ver e controlar.</h3>
             <ul>
-              {collectedData.map((item) => <li key={item}>{item}</li>)}
+              {portalFeatures.map((item) => <li key={item}>{item}</li>)}
             </ul>
           </article>
           <article className="privacy-column excluded-column">
-            <span className="column-icon" aria-hidden="true">−</span>
-            <p className="column-label">O que não coletamos</p>
-            <h3>Dados que não fazem parte do sistema atual.</h3>
+            <span className="column-icon" aria-hidden="true">↗</span>
+            <p className="column-label">Na extensão</p>
+            <h3>Políticas organizadas para uma leitura mais clara.</h3>
             <ul>
-              {excludedData.map((item) => <li key={item}>{item}</li>)}
+              {extensionFeatures.map((item) => <li key={item}>{item}</li>)}
             </ul>
           </article>
         </div>
@@ -332,11 +341,15 @@ export function Home() {
 
       <section className="closing-section home-section" aria-labelledby="closing-title">
         <div className="closing-glow" aria-hidden="true" />
-        <span className="section-kicker light-kicker">A decisão continua sendo sua</span>
-        <h2 id="closing-title">Dos dados invisíveis às escolhas conscientes.</h2>
-        <p>Comece pela parte que mais importa para você. Tudo continua acessível e reversível.</p>
+        <span className="section-kicker light-kicker">Transparência fortalece relações</span>
+        <h2 id="closing-title">
+          Informação gera consciência.<br />
+          Transparência gera confiança.<br />
+          E confiança fortalece relacionamentos duradouros.
+        </h2>
+        <p className="campaign-slogan">Seus dados. Seus direitos. Suas regras.</p>
         <div className="closing-actions">
-          <Link to="/what-we-know" className="button button-primary">Explorar o que sabemos <span aria-hidden="true">↗</span></Link>
+          <Link to="/what-we-know" className="button button-primary">Ver o que sabemos sobre você <span aria-hidden="true">↗</span></Link>
           <Link to="/privacy" className="closing-link">Privacidade &amp; LGPD <span aria-hidden="true">→</span></Link>
           <Link to="/quiz" className="closing-link">Fazer o quiz <span aria-hidden="true">→</span></Link>
           <Link to="/settings" className="closing-link">Revisar configurações <span aria-hidden="true">→</span></Link>
